@@ -1,6 +1,7 @@
 'use strict'
 
 const reachableUrl = require('reachable-url')
+const got = require('got')
 const test = require('ava')
 
 const contentLength = require('..')
@@ -30,6 +31,19 @@ test('.fromDataUri', async t => {
 })
 
 test('.fromResponse', async t => {
+  {
+    const url =
+      'https://mirrors.dotsrc.org/blender/blender-demo/movies/ToS/tearsofsteel_4k.mov?fromResponse'
+
+    const res = await got(url, {
+      headers: {
+        Range: 'bytes=0-0'
+      }
+    })
+
+    t.true(reachableUrl.isReachable(res))
+    t.is(await contentLength.fromResponse(res), 6737592810)
+  }
   {
     const url =
       'https://mirrors.dotsrc.org/blender/blender-demo/movies/ToS/tearsofsteel_4k.mov?fromResponse'
