@@ -2,7 +2,7 @@
   "name": "get-content-length",
   "description": "Get `content-length` from the input",
   "homepage": "https://nicedoc.io/Kikobeats/get-content-length",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "src/index.js",
   "author": {
     "email": "josefrancisco.verdu@gmail.com",
