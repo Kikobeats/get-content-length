@@ -23,7 +23,11 @@ const fromUrl = (url, opts) =>
 
 const fromDataUri = data => dataUri.toBuffer(data).byteLength
 
-const fromResponse = ({ headers }) => {
+const fromResponse = res => {
+  const headers = res.headers.entries
+    ? Object.fromEntries(res.headers)
+    : res.headers
+
   const contentRange = headers['content-range']
 
   if (contentRange) {
