@@ -1,7 +1,7 @@
 {
   "name": "get-content-length",
   "description": "Get `content-length` from the input",
-  "homepage": "https://nicedoc.io/Kikobeats/get-content-length",
+  "homepage": "https://github.com/Kikobeats/get-content-length",
   "version": "1.0.1",
   "main": "src/index.js",
   "author": {
@@ -26,7 +26,7 @@
   ],
   "dependencies": {
     "data-uri-utils": "~1.0.2",
-    "got": "~11.8.5"
+    "got": "~11.8.6"
   },
   "devDependencies": {
     "@commitlint/cli": "latest",
@@ -53,7 +53,7 @@
   ],
   "scripts": {
     "clean": "rm -rf node_modules",
-    "contributors": "(git-authors-cli && finepack && git add package.json && git commit -m 'build: contributors' --no-verify) || true",
+    "contributors": "(npx git-authors-cli && npx finepack && git add package.json && git commit -m 'build: contributors' --no-verify) || true",
     "coverage": "c8 report --reporter=text-lcov > coverage/lcov.info",
     "lint": "standard",
     "postrelease": "npm run release:tags && npm run release:github && (ci-publish || npm publish --access=public)",
