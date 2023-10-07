@@ -8,6 +8,10 @@ const contentLength = require('..')
 
 test('.fromUrl', async t => {
   {
+    const url = 'https://httpbin.org/status/404'
+    t.is(await contentLength(url), 0)
+  }
+  {
     const url = 'https://microlink.io/favicon.ico'
     t.is(await contentLength(url), 34494)
   }

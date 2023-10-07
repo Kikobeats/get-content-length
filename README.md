@@ -21,10 +21,15 @@ const contentLength = require('get-content-length')
 await contentLength('https://microlink.io/favicon.ico') // => 34494
 ```
 
+It handles HTTP errors, such 404:
+
+```js
+await contentLength('https://httpbin.org/status/404') // => 0
+```
+
 It accepts [got#options](https://github.com/sindresorhus/got/tree/v11#options) as second argument:
 
 ```js
-const contentLength = require('get-content-length')
 await contentLength('https://microlink.io/favicon.ico', { timeout: 8000 }) // => 34494
 ```
 
@@ -33,31 +38,25 @@ Alternatively, you can explicitly call the desired method:
 ### .fromUrl
 
 ```js
-const contentLength = require('get-content-length')
-
-await contentLength.fromUrl('https://microlink.io/favicon.ico') // => 34494
+const { fromUrl } = require('get-content-length')
+await fromUrl('https://microlink.io/favicon.ico') // => 34494
 ```
 
 ### .fromDataUri
 
 ```js
-const contentLength = require('get-content-length')
-
-const dataUri = 'data:image/png;base64,iVBORw0KGgoAAA…'
-
-await contentLength.fromDataUri(dataUri) // => 34494
+const { fromDataUri } = require('get-content-length')
+await contentLength.fromDataUri('data:image/png;base64,iVBORw0KGgoAAA…') // => 34494
 ```
 
 ### .fromResponse
 
 ```js
-const contentLength = require('get-content-length')
+const { fromResponse } = require('get-content-length')
 const reachableUrl = require('reachable-url')
 
-const url = 'https://mirrors.dotsrc.org/blender/blender-demo/movies/ToS/tearsofsteel_4k.mov'
-const response = await reachableUrl(url)
-
-await contentLength.fromResponse(response) // => 6737592810
+const response = await reachableUrl('https://mirrors.dotsrc.org/blender/blender-demo/movies/ToS/tearsofsteel_4k.mov')
+await fromResponse(response) // => 6737592810
 ```
 
 ## Related
