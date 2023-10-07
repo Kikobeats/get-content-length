@@ -1,7 +1,7 @@
 'use strict'
 
 const dataUri = require('data-uri-utils')
-const got = require('got')
+const got = require('got').extend({ throwHttpErrors: false })
 
 const fromUrl = (url, opts) =>
   new Promise((resolve, reject) => {
