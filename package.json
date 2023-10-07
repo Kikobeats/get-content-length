@@ -73,8 +73,9 @@
     ]
   },
   "nano-staged": {
-    "*.js,!*.min.js,": [
-      "prettier-standard"
+    "*.js": [
+      "prettier-standard",
+      "standard --fix"
     ],
     "package.json": [
       "finepack"
