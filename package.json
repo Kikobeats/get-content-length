@@ -2,7 +2,7 @@
   "name": "get-content-length",
   "description": "Get `content-length` from the input",
   "homepage": "https://github.com/Kikobeats/get-content-length",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "src/index.js",
   "author": {
     "email": "josefrancisco.verdu@gmail.com",
