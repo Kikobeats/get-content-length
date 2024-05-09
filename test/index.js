@@ -18,7 +18,7 @@ test('.fromUrl', async t => {
 
   {
     const url = 'https://cdn.microlink.io/logo/logo.png'
-    t.is(await contentLength(url), 2909)
+    t.is(await contentLength(url), 2784)
   }
 
   {
@@ -68,5 +68,5 @@ test('.fromResponse', async t => {
 test('.fromResponse (Web API)', async t => {
   const url = 'https://cdn.microlink.io/logo/logo.png'
   const res = await fetch(url)
-  t.is(await contentLength.fromResponse(res), 2909)
+  t.is(await contentLength.fromResponse(res), 2784)
 })
