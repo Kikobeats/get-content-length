@@ -53,14 +53,14 @@ jobs:
       - name: Test
         run: pnpm test
       - name: Report
-        run: mkdir -p coverage && npx c8 report --reporter=text-lcov > coverage/lcov.info
+        run: npx c8 report --reporter=text-lcov > coverage/lcov.info
       - name: Coverage
         uses: coverallsapp/github-action@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
         env:
-          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           git config --global user.email ${{ secrets.GIT_EMAIL }}
