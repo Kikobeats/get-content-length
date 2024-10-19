@@ -15,12 +15,10 @@ test('.fromUrl', async t => {
     const url = 'https://microlink.io/favicon.ico'
     t.is(await contentLength(url), 34494)
   }
-
   {
     const url = 'https://cdn.microlink.io/logo/logo.png'
     t.is(await contentLength(url), 2784)
   }
-
   {
     const url =
       'https://mirrors.dotsrc.org/blender/blender-demo/movies/ToS/tearsofsteel_4k.mov?fromUrl'
@@ -34,7 +32,7 @@ test('.fromDataUri', async t => {
   t.is(await contentLength.fromDataUri(dataUri), 2909)
 })
 
-test('.fromResponse', async t => {
+test('.fromResponse headers', async t => {
   {
     const url =
       'https://mirrors.dotsrc.org/blender/blender-demo/movies/ToS/tearsofsteel_4k.mov?fromResponse'
@@ -65,8 +63,24 @@ test('.fromResponse', async t => {
   }
 })
 
-test('.fromResponse (Web API)', async t => {
+test('.fromResponse headers (Web API)', async t => {
   const url = 'https://cdn.microlink.io/logo/logo.png'
   const res = await fetch(url)
   t.is(await contentLength.fromResponse(res), 2784)
+})
+
+test('.fromResponse body', async t => {
+  const url = 'https://microlink.io/logo.svg'
+  const res = await reachableUrl(url, { headers: { Range: undefined } })
+  delete res.headers['content-length']
+  t.is(await contentLength.fromResponse(res), 780)
+})
+
+test('.fromResponse body (Web API)', async t => {
+  const url = 'https://microlink.io/logo.svg'
+  const res = await fetch(url)
+  const headers = new Headers(res.headers)
+  headers.delete('content-length')
+  const modifiedRes = new Response(res.body, { headers })
+  t.is(await contentLength.fromResponse(modifiedRes), 780)
 })

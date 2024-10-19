@@ -10,8 +10,8 @@ const fromUrl = (url, opts) =>
 
     stream
       .on('data', buffer => (byteLength += buffer.byteLength))
-      .on('response', res => {
-        const contentLength = fromResponse(res)
+      .on('response', async res => {
+        const contentLength = await fromResponse(res)
         if (contentLength) {
           resolve(contentLength)
           stream.destroy()
@@ -23,7 +23,7 @@ const fromUrl = (url, opts) =>
 
 const fromDataUri = data => dataUri.toBuffer(data).byteLength
 
-const fromResponse = res => {
+const fromResponse = async res => {
   const headers = res.headers.entries
     ? Object.fromEntries(res.headers)
     : res.headers
@@ -37,7 +37,13 @@ const fromResponse = res => {
   }
 
   const contentLength = headers['content-length']
-  return contentLength ? Number(contentLength) : undefined
+  if (contentLength) return Number(contentLength)
+  if (res.body?.length !== undefined) return res.body.length
+  if (!res.clone) return undefined
+
+  const clonedResponse = res.clone()
+  const arrayBuffer = await clonedResponse.arrayBuffer()
+  return arrayBuffer.byteLength
 }
 
 const getContentLength = (input, opts) =>
