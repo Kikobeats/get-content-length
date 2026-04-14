@@ -17,7 +17,7 @@ test('.fromUrl', async t => {
   }
   {
     const url = 'https://cdn.microlink.io/logo/logo.png'
-    t.is(await contentLength(url), 2784)
+    t.is(await contentLength(url), 5187)
   }
   {
     const url =
@@ -59,21 +59,21 @@ test('.fromResponse headers', async t => {
     const res = await reachableUrl(url, { headers: { Range: undefined } })
 
     t.true(reachableUrl.isReachable(res))
-    t.is(await contentLength.fromResponse(res), 780)
+    t.is(await contentLength.fromResponse(res), 779)
   }
 })
 
 test('.fromResponse headers (Web API)', async t => {
   const url = 'https://cdn.microlink.io/logo/logo.png'
   const res = await fetch(url)
-  t.is(await contentLength.fromResponse(res), 2784)
+  t.is(await contentLength.fromResponse(res), 5187)
 })
 
 test('.fromResponse body', async t => {
   const url = 'https://microlink.io/logo.svg'
   const res = await reachableUrl(url, { headers: { Range: undefined } })
   delete res.headers['content-length']
-  t.is(await contentLength.fromResponse(res), 780)
+  t.is(await contentLength.fromResponse(res), 779)
 })
 
 test('.fromResponse body (Web API)', async t => {
@@ -82,5 +82,5 @@ test('.fromResponse body (Web API)', async t => {
   const headers = new Headers(res.headers)
   headers.delete('content-length')
   const modifiedRes = new Response(res.body, { headers })
-  t.is(await contentLength.fromResponse(modifiedRes), 780)
+  t.is(await contentLength.fromResponse(modifiedRes), 779)
 })
