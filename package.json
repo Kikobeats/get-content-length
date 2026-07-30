@@ -1,6 +1,6 @@
 {
   "name": "get-content-length",
-  "description": "Get `content-length` from the input",
+  "description": "Resolve Content-Length from URLs, data URIs, or response-like inputs without downloading the body.",
   "homepage": "https://github.com/Kikobeats/get-content-length",
   "version": "1.0.10",
   "main": "src/index.js",
@@ -18,10 +18,14 @@
     "url": "https://github.com/Kikobeats/get-content-length/issues"
   },
   "keywords": [
+    "bytes",
     "content-length",
-    "data",
     "data-uri",
+    "head",
+    "http",
+    "length",
     "response",
+    "size",
     "uri",
     "url"
   ],
@@ -75,6 +79,7 @@
   },
   "nano-staged": {
     "*.js": [
+      "npx @kikobeats/prettier-standard",
       "standard --fix"
     ],
     "package.json": [
