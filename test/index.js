@@ -32,6 +32,29 @@ test('.fromDataUri', async t => {
   t.is(await contentLength.fromDataUri(dataUri), 2909)
 })
 
+test('routes charset+base64 data URIs to fromDataUri', async t => {
+  const uri = 'data:text/plain;charset=UTF-8;base64,SGVsbG8='
+  t.is(await contentLength(uri), 5)
+})
+
+test('.fromResponse ignores unknown Content-Range total', async t => {
+  t.is(
+    await contentLength.fromResponse({
+      headers: {
+        'content-range': 'bytes */*',
+        'content-length': '100'
+      }
+    }),
+    100
+  )
+  t.is(
+    await contentLength.fromResponse({
+      headers: { 'content-range': 'bytes 0-0/*' }
+    }),
+    undefined
+  )
+})
+
 test('.fromResponse headers', async t => {
   {
     const url =

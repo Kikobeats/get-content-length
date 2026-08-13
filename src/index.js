@@ -31,13 +31,19 @@ const fromResponse = async res => {
   const contentRange = headers['content-range']
 
   if (contentRange) {
-    const value = contentRange.split('/')
-    const contentLength = value[value.length - 1]
-    return Number(contentLength)
+    const total = contentRange.split('/').pop()
+    // RFC 9110: total may be "*" when unknown; do not return NaN.
+    if (total && total !== '*') {
+      const parsed = Number(total)
+      if (Number.isFinite(parsed)) return parsed
+    }
   }
 
   const contentLength = headers['content-length']
-  if (contentLength) return Number(contentLength)
+  if (contentLength) {
+    const parsed = Number(contentLength)
+    if (Number.isFinite(parsed)) return parsed
+  }
   if (res.body?.length !== undefined) return res.body.length
   if (!res.clone) return undefined
 
@@ -46,8 +52,14 @@ const fromResponse = async res => {
   return arrayBuffer.byteLength
 }
 
+// Prefix check: data-uri-utils.test() historically rejected valid
+// `charset`+`base64` URIs, which made got throw "Unsupported protocol".
+const isDataUri = input =>
+  typeof input === 'string' &&
+  (dataUri.test(input) || /^data:/i.test(input))
+
 const getContentLength = (input, opts) =>
-  (dataUri.test(input)
+  (isDataUri(input)
     ? fromDataUri
     : typeof input === 'string'
       ? fromUrl
