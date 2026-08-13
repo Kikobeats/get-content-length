@@ -1,29 +1,38 @@
 'use strict'
 
-const reachableUrl = require('reachable-url')
+const http = require('http')
 const got = require('got')
 const test = require('ava').default
 
 const contentLength = require('..')
 
+const listen = (t, handler) =>
+  new Promise((resolve, reject) => {
+    const server = http.createServer(handler)
+    server.listen(0, '127.0.0.1', err => {
+      if (err) return reject(err)
+      const { port } = server.address()
+      t.teardown(() => server.close())
+      resolve(`http://127.0.0.1:${port}`)
+    })
+  })
+
 test('.fromUrl', async t => {
-  {
-    const url = 'https://httpbin.org/status/404'
-    t.is(await contentLength(url), 0)
-  }
-  {
-    const url = 'https://microlink.io/favicon.ico'
-    t.is(await contentLength(url), 34494)
-  }
-  {
-    const url = 'https://cdn.microlink.io/logo/logo.png'
-    t.is(await contentLength(url), 5187)
-  }
-  {
-    const url =
-      'https://mirrors.dotsrc.org/blender/blender-demo/movies/ToS/tearsofsteel_4k.mov?fromUrl'
-    t.is(await contentLength(url), 6737592810)
-  }
+  const body = Buffer.from('hello-from-url')
+  const url = await listen(t, (req, res) => {
+    if (req.url === '/missing') {
+      res.writeHead(404, { 'content-length': '0' })
+      return res.end()
+    }
+    res.writeHead(200, {
+      'content-type': 'text/plain',
+      'content-length': String(body.length)
+    })
+    res.end(body)
+  })
+
+  t.is(await contentLength(`${url}/missing`), 0)
+  t.is(await contentLength(`${url}/file`), body.length)
 })
 
 test('.fromDataUri', async t => {
@@ -56,54 +65,64 @@ test('.fromResponse ignores unknown Content-Range total', async t => {
 })
 
 test('.fromResponse headers', async t => {
-  {
-    const url =
-      'https://mirrors.dotsrc.org/blender/blender-demo/movies/ToS/tearsofsteel_4k.mov?fromResponse'
-
-    const res = await got(url, {
-      headers: {
-        Range: 'bytes=0-0'
-      }
+  const body = Buffer.from('0123456789')
+  const url = await listen(t, (req, res) => {
+    res.writeHead(206, {
+      'content-type': 'text/plain',
+      'accept-ranges': 'bytes',
+      'content-range': `bytes 0-0/${body.length}`,
+      'content-length': '1'
     })
+    res.end(body.subarray(0, 1))
+  })
 
-    t.true(reachableUrl.isReachable(res))
-    t.is(await contentLength.fromResponse(res), 6737592810)
-  }
-  {
-    const url =
-      'https://mirrors.dotsrc.org/blender/blender-demo/movies/ToS/tearsofsteel_4k.mov?fromResponse'
-    const res = await reachableUrl(url)
+  const res = await got(`${url}/file`, {
+    headers: { Range: 'bytes=0-0' },
+    throwHttpErrors: false
+  })
 
-    t.true(reachableUrl.isReachable(res))
-    t.is(await contentLength.fromResponse(res), 6737592810)
-  }
-  {
-    const url = 'https://microlink.io/logo.svg'
-    const res = await reachableUrl(url, { headers: { Range: undefined } })
-
-    t.true(reachableUrl.isReachable(res))
-    t.is(await contentLength.fromResponse(res), 779)
-  }
+  t.is(res.statusCode, 206)
+  t.is(await contentLength.fromResponse(res), body.length)
 })
 
 test('.fromResponse headers (Web API)', async t => {
-  const url = 'https://cdn.microlink.io/logo/logo.png'
-  const res = await fetch(url)
-  t.is(await contentLength.fromResponse(res), 5187)
+  const body = Buffer.from('web-api-body')
+  const url = await listen(t, (req, res) => {
+    res.writeHead(200, {
+      'content-type': 'text/plain',
+      'content-length': String(body.length)
+    })
+    res.end(body)
+  })
+
+  const res = await fetch(`${url}/file`)
+  t.is(await contentLength.fromResponse(res), body.length)
 })
 
 test('.fromResponse body', async t => {
-  const url = 'https://microlink.io/logo.svg'
-  const res = await reachableUrl(url, { headers: { Range: undefined } })
-  delete res.headers['content-length']
-  t.is(await contentLength.fromResponse(res), 779)
+  const body = Buffer.from('payload-without-length-header')
+  t.is(
+    await contentLength.fromResponse({
+      headers: {},
+      body
+    }),
+    body.length
+  )
 })
 
 test('.fromResponse body (Web API)', async t => {
-  const url = 'https://microlink.io/logo.svg'
-  const res = await fetch(url)
+  const body = Buffer.from('web-api-payload')
+  const url = await listen(t, (req, res) => {
+    res.writeHead(200, {
+      'content-type': 'text/plain',
+      'content-length': String(body.length)
+    })
+    res.end(body)
+  })
+
+  const res = await fetch(`${url}/file`)
   const headers = new Headers(res.headers)
   headers.delete('content-length')
   const modifiedRes = new Response(res.body, { headers })
-  t.is(await contentLength.fromResponse(modifiedRes), 779)
+  t.is(await contentLength.fromResponse(modifiedRes), body.length)
 })
