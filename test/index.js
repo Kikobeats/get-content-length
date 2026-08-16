@@ -2,7 +2,7 @@
 
 const reachableUrl = require('reachable-url')
 const got = require('got')
-const test = require('ava')
+const test = require('ava').default
 
 const contentLength = require('..')
 
