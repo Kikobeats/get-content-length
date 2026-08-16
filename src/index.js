@@ -23,47 +23,37 @@ const fromUrl = (url, opts) =>
 
 const fromDataUri = data => dataUri.toBuffer(data).byteLength
 
+const finiteLength = value => {
+  if (!value) return
+  const parsed = Number(value)
+  if (Number.isFinite(parsed)) return parsed
+}
+
 const fromResponse = async res => {
   const headers = res.headers.entries
     ? Object.fromEntries(res.headers)
     : res.headers
 
-  const contentRange = headers['content-range']
+  const fromRange = finiteLength(headers['content-range']?.split('/').pop())
+  if (fromRange !== undefined) return fromRange
 
-  if (contentRange) {
-    const total = contentRange.split('/').pop()
-    // RFC 9110: total may be "*" when unknown; do not return NaN.
-    if (total && total !== '*') {
-      const parsed = Number(total)
-      if (Number.isFinite(parsed)) return parsed
-    }
-  }
-
-  const contentLength = headers['content-length']
-  if (contentLength) {
-    const parsed = Number(contentLength)
-    if (Number.isFinite(parsed)) return parsed
-  }
+  const fromLength = finiteLength(headers['content-length'])
+  if (fromLength !== undefined) return fromLength
   if (res.body?.length !== undefined) return res.body.length
   if (!res.clone) return undefined
 
-  const clonedResponse = res.clone()
-  const arrayBuffer = await clonedResponse.arrayBuffer()
-  return arrayBuffer.byteLength
+  return (await res.clone().arrayBuffer()).byteLength
 }
 
-// Prefix check: data-uri-utils.test() historically rejected valid
-// `charset`+`base64` URIs, which made got throw "Unsupported protocol".
+// Prefix fallback: test() can miss a valid data: form; got cannot handle the scheme.
 const isDataUri = input =>
-  typeof input === 'string' &&
-  (dataUri.test(input) || /^data:/i.test(input))
+  typeof input === 'string' && (dataUri.test(input) || /^data:/i.test(input))
 
-const getContentLength = (input, opts) =>
-  (isDataUri(input)
-    ? fromDataUri
-    : typeof input === 'string'
-      ? fromUrl
-      : fromResponse)(input, opts)
+const getContentLength = (input, opts) => {
+  if (isDataUri(input)) return fromDataUri(input)
+  if (typeof input === 'string') return fromUrl(input, opts)
+  return fromResponse(input, opts)
+}
 
 module.exports = getContentLength
 module.exports.fromUrl = fromUrl

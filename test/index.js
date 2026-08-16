@@ -7,10 +7,9 @@ const test = require('ava').default
 const contentLength = require('..')
 
 const listen = (t, handler) =>
-  new Promise((resolve, reject) => {
+  new Promise(resolve => {
     const server = http.createServer(handler)
-    server.listen(0, '127.0.0.1', err => {
-      if (err) return reject(err)
+    server.listen(0, '127.0.0.1', () => {
       const { port } = server.address()
       t.teardown(() => server.close())
       resolve(`http://127.0.0.1:${port}`)
@@ -77,8 +76,7 @@ test('.fromResponse headers', async t => {
   })
 
   const res = await got(`${url}/file`, {
-    headers: { Range: 'bytes=0-0' },
-    throwHttpErrors: false
+    headers: { Range: 'bytes=0-0' }
   })
 
   t.is(res.statusCode, 206)
