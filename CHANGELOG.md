@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.0.11 (2026-08-16)
+
+
+### Bug Fixes
+
+* handle data URIs and unknown Content-Range totals ([#22](https://github.com/Kikobeats/get-content-length/issues/22)) ([bb92d09](https://github.com/Kikobeats/get-content-length/commit/bb92d0987778569ceda04c4fe149f438687a4207))
+
 ### 1.0.10 (2026-04-14)
 
 ### 1.0.9 (2024-10-19)
