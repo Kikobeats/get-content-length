@@ -23,35 +23,37 @@ const fromUrl = (url, opts) =>
 
 const fromDataUri = data => dataUri.toBuffer(data).byteLength
 
+const finiteLength = value => {
+  if (!value) return
+  const parsed = Number(value)
+  if (Number.isFinite(parsed)) return parsed
+}
+
 const fromResponse = async res => {
   const headers = res.headers.entries
     ? Object.fromEntries(res.headers)
     : res.headers
 
-  const contentRange = headers['content-range']
+  const fromRange = finiteLength(headers['content-range']?.split('/').pop())
+  if (fromRange !== undefined) return fromRange
 
-  if (contentRange) {
-    const value = contentRange.split('/')
-    const contentLength = value[value.length - 1]
-    return Number(contentLength)
-  }
-
-  const contentLength = headers['content-length']
-  if (contentLength) return Number(contentLength)
+  const fromLength = finiteLength(headers['content-length'])
+  if (fromLength !== undefined) return fromLength
   if (res.body?.length !== undefined) return res.body.length
   if (!res.clone) return undefined
 
-  const clonedResponse = res.clone()
-  const arrayBuffer = await clonedResponse.arrayBuffer()
-  return arrayBuffer.byteLength
+  return (await res.clone().arrayBuffer()).byteLength
 }
 
-const getContentLength = (input, opts) =>
-  (dataUri.test(input)
-    ? fromDataUri
-    : typeof input === 'string'
-      ? fromUrl
-      : fromResponse)(input, opts)
+// Prefix fallback: test() can miss a valid data: form; got cannot handle the scheme.
+const isDataUri = input =>
+  typeof input === 'string' && (dataUri.test(input) || /^data:/i.test(input))
+
+const getContentLength = (input, opts) => {
+  if (isDataUri(input)) return fromDataUri(input)
+  if (typeof input === 'string') return fromUrl(input, opts)
+  return fromResponse(input, opts)
+}
 
 module.exports = getContentLength
 module.exports.fromUrl = fromUrl
