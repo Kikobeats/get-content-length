@@ -30,7 +30,7 @@
     "url"
   ],
   "dependencies": {
-    "data-uri-utils": "~1.0.2",
+    "data-uri-utils": "~1.0.15",
     "got": "~11.8.6"
   },
   "devDependencies": {
