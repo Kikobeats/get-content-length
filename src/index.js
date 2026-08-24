@@ -3,6 +3,22 @@
 const dataUri = require('data-uri-utils')
 const got = require('got').extend({ throwHttpErrors: false })
 
+const finiteLength = value => {
+  if (!value) return
+  const parsed = Number(value)
+  if (Number.isFinite(parsed)) return parsed
+}
+
+const fromHeaders = headers => {
+  const normalized = headers.entries
+    ? Object.fromEntries(headers)
+    : headers
+
+  const fromRange = finiteLength(normalized['content-range']?.split('/').pop())
+  if (fromRange !== undefined) return fromRange
+  return finiteLength(normalized['content-length'])
+}
+
 const fromUrl = (url, opts) =>
   new Promise((resolve, reject) => {
     const stream = got.stream(url, opts)
@@ -10,9 +26,11 @@ const fromUrl = (url, opts) =>
 
     stream
       .on('data', buffer => (byteLength += buffer.byteLength))
-      .on('response', async res => {
-        const contentLength = await fromResponse(res)
-        if (contentLength) {
+      .on('response', res => {
+        // Must stay sync: await here lets 'end' resolve first on a small 206
+        // body and return the partial byte count instead of the range total.
+        const contentLength = fromHeaders(res.headers)
+        if (contentLength !== undefined) {
           resolve(contentLength)
           stream.destroy()
         }
@@ -23,22 +41,9 @@ const fromUrl = (url, opts) =>
 
 const fromDataUri = data => dataUri.toBuffer(data).byteLength
 
-const finiteLength = value => {
-  if (!value) return
-  const parsed = Number(value)
-  if (Number.isFinite(parsed)) return parsed
-}
-
 const fromResponse = async res => {
-  const headers = res.headers.entries
-    ? Object.fromEntries(res.headers)
-    : res.headers
-
-  const fromRange = finiteLength(headers['content-range']?.split('/').pop())
-  if (fromRange !== undefined) return fromRange
-
-  const fromLength = finiteLength(headers['content-length'])
-  if (fromLength !== undefined) return fromLength
+  const fromHeader = fromHeaders(res.headers)
+  if (fromHeader !== undefined) return fromHeader
   if (res.body?.length !== undefined) return res.body.length
   if (!res.clone) return undefined
 
