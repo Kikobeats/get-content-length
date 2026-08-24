@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.0.12 (2026-08-24)
+
+
+### Bug Fixes
+
+* prefer Content-Range total over streamed bytes in fromUrl ([#23](https://github.com/Kikobeats/get-content-length/issues/23)) ([9216ef2](https://github.com/Kikobeats/get-content-length/commit/9216ef26a1c2bf2966f8d11b7924c425a9c39461))
+
 ### 1.0.11 (2026-08-16)
 
 

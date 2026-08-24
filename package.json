@@ -2,7 +2,7 @@
   "name": "get-content-length",
   "description": "Resolve Content-Length from URLs, data URIs, or response-like inputs without downloading the body.",
   "homepage": "https://github.com/Kikobeats/get-content-length",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "main": "src/index.js",
   "author": {
     "email": "josefrancisco.verdu@gmail.com",
