@@ -31,7 +31,7 @@
   ],
   "dependencies": {
     "data-uri-utils": "~1.0.15",
-    "got": "~11.8.6"
+    "got": "~16.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "latest",
