@@ -1,7 +1,7 @@
 'use strict'
 
 const dataUri = require('data-uri-utils')
-const got = require('got').extend({ throwHttpErrors: false })
+const got = require('@kikobeats/got').extend({ throwHttpErrors: false })
 
 const finiteLength = value => {
   if (!value) return
@@ -10,9 +10,7 @@ const finiteLength = value => {
 }
 
 const fromHeaders = headers => {
-  const normalized = headers.entries
-    ? Object.fromEntries(headers)
-    : headers
+  const normalized = headers.entries ? Object.fromEntries(headers) : headers
 
   const fromRange = finiteLength(normalized['content-range']?.split('/').pop())
   if (fromRange !== undefined) return fromRange

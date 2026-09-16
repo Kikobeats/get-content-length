@@ -1,7 +1,7 @@
 'use strict'
 
 const http = require('http')
-const got = require('got')
+const got = require('@kikobeats/got')
 const test = require('ava').default
 
 const contentLength = require('..')
