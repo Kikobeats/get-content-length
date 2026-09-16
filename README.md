@@ -1,8 +1,8 @@
 # get-content-length
 
-![Last version](https://img.shields.io/github/tag/Kikobeats/get-content-length.svg?style=flat-square)
-[![Coverage Status](https://img.shields.io/coveralls/Kikobeats/get-content-length.svg?style=flat-square)](https://coveralls.io/github/Kikobeats/get-content-length)
-[![NPM Status](https://img.shields.io/npm/dm/get-content-length.svg?style=flat-square)](https://www.npmjs.org/package/get-content-length)
+[![Last version](https://img.shields.io/github/v/tag/Kikobeats/get-content-length?style=flat-square)](https://github.com/Kikobeats/get-content-length/releases)
+[![Coverage Status](https://img.shields.io/coverallsCoverage/github/Kikobeats/get-content-length?style=flat-square)](https://coveralls.io/github/Kikobeats/get-content-length)
+[![NPM Status](https://img.shields.io/npm/dm/get-content-length?style=flat-square)](https://www.npmjs.com/package/get-content-length)
 
 > Get [Content-Length](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length) from the input.
 
