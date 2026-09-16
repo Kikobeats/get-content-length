@@ -30,8 +30,8 @@
     "url"
   ],
   "dependencies": {
-    "data-uri-utils": "~1.0.15",
-    "got": "~11.8.6"
+    "@kikobeats/got": "~11.8.8",
+    "data-uri-utils": "~1.0.15"
   },
   "devDependencies": {
     "@commitlint/cli": "latest",
