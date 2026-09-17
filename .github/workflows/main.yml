@@ -9,6 +9,9 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  pnpm_config_dangerously_allow_all_builds: true
+
 jobs:
   contributors:
     if: "${{ github.event.head_commit.message != 'build: contributors' }}"
@@ -58,7 +61,7 @@ jobs:
           git config --global user.name ${{ secrets.GIT_USERNAME }}
           git pull origin master
       - name: Install
-        run: pnpm install --dangerously-allow-all-builds
+        run: pnpm install
       - name: Test
         run: pnpm test
       - name: Report
