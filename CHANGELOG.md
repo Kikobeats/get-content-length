@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.0.14 (2026-10-01)
+
+
+### Bug Fixes
+
+* do not treat a 206 partial Content-Length as the resource size ([#28](https://github.com/Kikobeats/get-content-length/issues/28)) ([ee80b80](https://github.com/Kikobeats/get-content-length/commit/ee80b807a04d542197070dcf82c0ef9a4cf702da))
+
 ### 1.0.13 (2026-09-16)
 
 ### 1.0.12 (2026-08-24)
