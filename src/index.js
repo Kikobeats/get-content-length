@@ -9,11 +9,22 @@ const finiteLength = value => {
   if (Number.isFinite(parsed)) return parsed
 }
 
+const normalizeHeaders = headers =>
+  headers?.entries ? Object.fromEntries(headers) : headers || {}
+
+// `Content-Range: bytes 0-0/*` is a complete 206 whose total is unknown.
+// Content-Length then names the selected range (often 1), not the resource.
+const isSatisfiedUnknownRange = headers => {
+  const range = normalizeHeaders(headers)['content-range']
+  return typeof range === 'string' && /bytes\s+\d+-\d+\s*\/\s*\*/i.test(range)
+}
+
 const fromHeaders = headers => {
-  const normalized = headers.entries ? Object.fromEntries(headers) : headers
+  const normalized = normalizeHeaders(headers)
 
   const fromRange = finiteLength(normalized['content-range']?.split('/').pop())
   if (fromRange !== undefined) return fromRange
+  if (isSatisfiedUnknownRange(normalized)) return
   return finiteLength(normalized['content-length'])
 }
 
@@ -31,6 +42,13 @@ const fromUrl = (url, opts) =>
         if (contentLength !== undefined) {
           resolve(contentLength)
           stream.destroy()
+          return
+        }
+        // Same 206 shape reachable-url / GitHub emit: do not count the
+        // selected byte and call that the resource size.
+        if (isSatisfiedUnknownRange(res.headers)) {
+          resolve(undefined)
+          stream.destroy()
         }
       })
       .on('error', reject)
@@ -42,6 +60,8 @@ const fromDataUri = data => dataUri.toBuffer(data).byteLength
 const fromResponse = async res => {
   const fromHeader = fromHeaders(res.headers)
   if (fromHeader !== undefined) return fromHeader
+  // reachable-url leaves this 206 intact; the 1-byte body is not the size.
+  if (isSatisfiedUnknownRange(res.headers)) return
   if (res.body?.length !== undefined) return res.body.length
   if (!res.clone) return undefined
 

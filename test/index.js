@@ -81,6 +81,39 @@ test('.fromResponse ignores unknown Content-Range total', async t => {
   )
 })
 
+// reachable-url's Range probe (and GitHub) answers `bytes 0-0/*` with
+// Content-Length: 1. That 1 is the selected byte, not the resource.
+test('.fromResponse does not treat a 206 partial length as the resource size', async t => {
+  t.is(
+    await contentLength.fromResponse({
+      headers: {
+        'content-range': 'bytes 0-0/*',
+        'content-length': '1'
+      },
+      body: Buffer.from('x')
+    }),
+    undefined
+  )
+})
+
+test('.fromUrl does not treat a 206 partial length as the resource size', async t => {
+  const body = Buffer.from('x')
+  const url = await listen(t, (req, res) => {
+    res.writeHead(206, {
+      'content-type': 'text/plain',
+      'accept-ranges': 'bytes',
+      'content-range': 'bytes 0-0/*',
+      'content-length': '1'
+    })
+    res.end(body)
+  })
+
+  t.is(
+    await contentLength(`${url}/file`, { headers: { Range: 'bytes=0-0' } }),
+    undefined
+  )
+})
+
 test('.fromResponse headers', async t => {
   const body = Buffer.from('0123456789')
   const url = await listen(t, (req, res) => {
