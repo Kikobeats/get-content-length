@@ -36,3 +36,6 @@ coverage
 .envrc
 install.log
 pnpm-lock.yaml
+benchmark-output.json
+head-output.json
+cache/
